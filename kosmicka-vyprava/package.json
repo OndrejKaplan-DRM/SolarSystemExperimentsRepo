@@ -1,0 +1,14 @@
+{
+  "name": "kosmicka-vyprava",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Kosmická výprava – gamifikovaný 3D model Sluneční soustavy v prohlížeči (Three.js)",
+  "scripts": {
+    "build": "esbuild src/main.js --bundle --minify --format=iife --outfile=app.js",
+    "serve": "python3 -m http.server 8765"
+  },
+  "dependencies": {
+    "esbuild": "^0.28.2",
+    "three": "^0.187.0"
+  }
+}

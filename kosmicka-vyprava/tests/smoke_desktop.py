@@ -1,0 +1,32 @@
+import asyncio, os, sys, subprocess, time
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+from playwright.async_api import async_playwright
+srv = subprocess.Popen([sys.executable,'-m','http.server','8765','--directory',ROOT],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+time.sleep(1)
+async def main():
+    async with async_playwright() as p:
+        b = await p.chromium.launch(args=['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist'])
+        pg = await b.new_page(viewport={'width':1440,'height':860})
+        logs=[]
+        pg.on('console', lambda m: logs.append(m.type+': '+m.text) if m.type in('error','warning') else None)
+        pg.on('pageerror', lambda e: logs.append('PAGEERR: '+str(e)))
+        await pg.goto('http://localhost:8765/index.html')
+        await pg.wait_for_timeout(6000)
+        await pg.screenshot(path='s1_welcome.png')
+        await pg.click('[data-start="kid"]')
+        await pg.wait_for_timeout(1500)
+        await pg.screenshot(path='s2_kid_home.png')
+        await pg.click('#dock [data-go="saturn"]')
+        await pg.wait_for_timeout(5000)
+        await pg.screenshot(path='s3_kid_saturn.png')
+        await pg.click('#dock [data-go="earth"]')
+        await pg.wait_for_timeout(5000)
+        await pg.screenshot(path='s4_kid_earth.png')
+        await pg.click('[data-mode="pro"]')
+        await pg.click('[data-tab="atlas"]')
+        await pg.evaluate("__app.flyTo(__app.B.jupiter)")
+        await pg.wait_for_timeout(5000)
+        await pg.screenshot(path='s5_pro_jupiter.png')
+        print('\n'.join(logs[:30]))
+        await b.close()
+asyncio.run(main()); srv.terminate()

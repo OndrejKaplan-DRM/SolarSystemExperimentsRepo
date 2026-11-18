@@ -1,0 +1,4 @@
+node_modules/
+*.png.tmp
+tests/*.png
+__pycache__/
